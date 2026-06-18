@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from .serializers import TranslationJobSerializer
 from rest_framework.permissions import IsAuthenticated
 import fitz
-from .tasks import dummy_translate_job
+from .tasks import translate_job
 from .models import TranslationJob
 from django.shortcuts import get_object_or_404
 # Create your views here.
@@ -21,7 +21,7 @@ class TranslationJobCreateApiView(APIView):
             doc.close()
             instance.total_pages = page_count
             instance.save()
-            dummy_translate_job.delay(instance.id)
+            translate_job.delay(instance.id)
             return Response({'id': instance.id, 'status': instance.status}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
