@@ -1,4 +1,4 @@
-from apps.jobs.models import ChunkStatus, Chunk
+from jobs.models import ChunkStatus, Chunk
 
 
 
