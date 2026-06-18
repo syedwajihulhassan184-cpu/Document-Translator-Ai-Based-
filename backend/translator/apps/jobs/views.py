@@ -4,6 +4,7 @@ from rest_framework.response import Response
 from .serializers import TranslationJobSerializer
 from rest_framework.permissions import IsAuthenticated
 import fitz
+from accounts.utils import check_quota
 from .tasks import translate_job
 from .models import TranslationJob
 from django.shortcuts import get_object_or_404
@@ -15,13 +16,19 @@ class TranslationJobCreateApiView(APIView):
     def post(self, request):
         serializer = TranslationJobSerializer(data=request.data)
         if serializer.is_valid():
-            instance = serializer.save(user=request.user)
-            doc = fitz.open(instance.input_file.storage_key)
+            input_file = serializer.validated_data['input_file']
+            doc = fitz.open(input_file.storage_key)
             page_count = doc.page_count
             doc.close()
+            allowed, error = check_quota(user=request.user, page_count=page_count)
+            if not allowed:
+                return Response({'error':error}, status=status.HTTP_400_BAD_REQUEST)
+            instance = serializer.save(user=request.user)
             instance.total_pages = page_count
             instance.save()
             translate_job.delay(instance.id)
+            request.user.pages_used_this_month += page_count
+            request.user.save()
             return Response({'id': instance.id, 'status': instance.status}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
