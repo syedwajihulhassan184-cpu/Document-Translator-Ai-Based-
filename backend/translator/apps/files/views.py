@@ -22,7 +22,22 @@ class FileUploadView(APIView):
                 return Response({'error':'File is too large'}, status=status.HTTP_400_BAD_REQUEST)
             checksum = hashlib.sha256(file.read()).hexdigest()
             file.seek(0)
+
+            # duplicate check
+            existing = File.objects.filter(
+                user=request.user,
+                checksum_sha256=checksum,
+                deleted_at=None   
+            ).first()
+            if existing:
+                return Response({
+                    'id': existing.id, 
+                    'original_filename': existing.original_filename
+                }, status=status.HTTP_200_OK)
+            
+            
             tmp_path = f'/tmp/{file.name}'
+
             with open(tmp_path, 'wb') as f:
                 f.write(file.read())
 
