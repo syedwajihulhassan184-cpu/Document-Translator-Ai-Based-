@@ -1,5 +1,4 @@
 from celery import shared_task
-import time
 from .models import Chunk, ChunkStatus,TranslationJob, TranslationStates
 from core.translators.translator import translate_chunk
 from django.utils import timezone
