@@ -31,6 +31,7 @@ class TranslationJob(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     deleted_at = models.DateTimeField(null=True, blank=True)
     completed_at = models.DateTimeField(null=True, blank=True)
+    output_file_path = models.CharField(max_length=500, null=True, blank=True)
     objects = models.Manager()
     active = TranslationJobManager()
 

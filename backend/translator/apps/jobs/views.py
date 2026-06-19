@@ -5,8 +5,9 @@ from .serializers import TranslationJobSerializer
 from rest_framework.permissions import IsAuthenticated
 import fitz
 from accounts.utils import check_quota
+from django.http import FileResponse
 from .tasks import translate_job
-from .models import TranslationJob
+from .models import TranslationJob, TranslationStates
 from django.shortcuts import get_object_or_404
 # Create your views here.
 
@@ -43,3 +44,19 @@ class TranslationJobDetailApiView(APIView):
             'progress': round(progress, 2),
             'error_message': job.error_message
         }, status=status.HTTP_200_OK)
+
+
+class TranslationJobDownloadView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, pk):
+        job = get_object_or_404(TranslationJob, pk=pk, user=request.user)
+
+        if job.status == TranslationStates.DONE:
+            return FileResponse(
+                open(job.output_file_path, 'rb'),
+                as_attachment=True,
+                filename=f'translated_{job.input_file.original_filename}'
+            )
+        else:
+            return Response({'error': 'Job not complete yet'}, status=status.HTTP_400_BAD_REQUEST)
