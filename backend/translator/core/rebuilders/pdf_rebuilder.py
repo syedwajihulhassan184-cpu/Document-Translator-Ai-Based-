@@ -22,7 +22,7 @@ def rebuild_pdf(job, output_path):
         chunk_group[page].append(chunk) 
 
     c = Canvas(output_path, pagesize=A4)
-    page_height = A4
+    page_width, page_height = A4
     pdfmetrics.registerFont(TTFont('NotoArabic', '/usr/share/fonts/truetype/noto/NotoNaskhArabic-Regular.ttf'))
 
     for page_num, page_chunks in chunk_group.items():
@@ -35,6 +35,6 @@ def rebuild_pdf(job, output_path):
                 
                 c.drawString(reportlab_x, reportlab_y, bidi_text)
             c.showPage()
-            c.save()
-            job.output_file_path = output_path
-            job.save()
+    c.save()
+    job.output_file_path = output_path
+    job.save()

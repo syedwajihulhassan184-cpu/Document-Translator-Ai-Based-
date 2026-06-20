@@ -1,5 +1,4 @@
 from dotenv import load_dotenv
-import requests
 import time
 import os
 import logging
@@ -18,12 +17,12 @@ def translate_chunk(chunk_text, source_lang, target_lang):
 
     client = OpenAI(
         api_key=AI_API_KEY,
-        base_url="https://api.deepseek.com"
+        base_url="https://api.featherless.ai/v1"
     )
     for attempt in range(3):
         try:
             response = client.chat.completions.create(
-                model="deepseek-chat",
+                model="meta-llama/Meta-Llama-3.1-8B-Instruct",
                 messages=[
                     {"role":"system", "content": f"""Translate this from {source_lang} to {target_lang} just return the
                         translated text i dont want any extra text exact translated text now translate this"""},

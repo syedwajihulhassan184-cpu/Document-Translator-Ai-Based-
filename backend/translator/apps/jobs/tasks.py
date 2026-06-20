@@ -1,6 +1,7 @@
 from celery import shared_task
 from .models import Chunk, ChunkStatus,TranslationJob, TranslationStates
 from core.translators.translator import translate_chunk
+from core.rebuilders.pdf_rebuilder import rebuild_pdf
 from django.utils import timezone
 
 @shared_task
@@ -26,8 +27,12 @@ def translate_job(job_id):
             else:
                 continue
 
+    output_path = f'/tmp/translated_{job.id}.pdf'
+    rebuild_pdf(job, output_path)
+    job.output_file_path = output_path
 
-    if job.failed_chunks / total_chunks <= 0.3:
+
+    if total_chunks == 0 or job.failed_chunks / total_chunks <= 0.3:
         job.status = TranslationStates.DONE
     else:
         job.status = TranslationStates.FAILED

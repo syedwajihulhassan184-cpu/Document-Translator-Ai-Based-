@@ -1,5 +1,6 @@
 from rest_framework.views import APIView
 from rest_framework import status
+from core.parsers.pdf_parsers import extract_chunks, save_chunks_to_db
 from rest_framework.response import Response
 from .serializers import TranslationJobSerializer
 from rest_framework.permissions import IsAuthenticated
@@ -27,6 +28,9 @@ class TranslationJobCreateApiView(APIView):
             instance = serializer.save(user=request.user)
             instance.total_pages = page_count
             instance.save()
+            # parse and save chunks BEFORE dispatching task
+            chunks = extract_chunks(input_file.storage_key)
+            save_chunks_to_db(chunks, instance)
             translate_job.delay(instance.id)
             request.user.pages_used_this_month += page_count
             request.user.save()

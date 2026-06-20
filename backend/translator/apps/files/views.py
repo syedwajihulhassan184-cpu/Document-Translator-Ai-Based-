@@ -1,5 +1,4 @@
 import hashlib
-import os
 from .models import File
 from rest_framework.views import APIView
 from rest_framework.response import Response
