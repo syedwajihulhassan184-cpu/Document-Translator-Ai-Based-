@@ -11,6 +11,7 @@ def translate_job(job_id):
     job.save()
     chunks = Chunk.objects.filter(job=job,status=ChunkStatus.PENDING)
     total_chunks = chunks.count()
+    processed = 0
 
     for chunk in chunks:
         try:
@@ -18,6 +19,9 @@ def translate_job(job_id):
             chunk.translated_text = result
             chunk.status = ChunkStatus.DONE
             chunk.save()
+            processed += 1
+            job.processed_pages = int((processed/total_chunks) * job.total_pages)
+            job.save()
         except Exception:
             chunk.retry_count += 1
             if chunk.retry_count >= 3:

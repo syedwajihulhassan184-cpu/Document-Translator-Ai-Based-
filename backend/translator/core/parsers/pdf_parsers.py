@@ -67,20 +67,6 @@ def block_to_chunks(blocks, page_num, block_index) -> dict:
 
 
 
-'''
-import pdfplumber
-with pdfplumber.open("/media/syed-wajih/New Volume/New folder/Portfolio/pdf-translator/backend/translator/sample_files/book.pdf") as pdf:
-    page = pdf.pages[2]
-    lines = page.extract_text_lines()
-    blocks = group_lines_into_blocks(lines)
-    chunks = [block_to_chunks(block, page_num=2, block_index=i) 
-              for i, block in enumerate(blocks)]
-for chunk in chunks:
-    print(chunk['page'], chunk['block_index'], chunk['text'][:50])
-    print(chunk['bbox'])
-    print()
-'''
-
 def extract_chunks(filepath) -> list:
     import pdfplumber
     all_chunks = []

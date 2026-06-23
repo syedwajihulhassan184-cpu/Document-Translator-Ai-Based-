@@ -43,6 +43,7 @@ class TranslationJobDetailApiView(APIView):
     def get(self, request, pk):
         job = get_object_or_404(TranslationJob, pk=pk, user=request.user)
         progress = (job.processed_pages / job.total_pages * 100) if job.total_pages > 0 else 0
+        progress = min(progress, 100)  # never exceed 100%
         return Response({
             'status': job.status,
             'progress': round(progress, 2),
